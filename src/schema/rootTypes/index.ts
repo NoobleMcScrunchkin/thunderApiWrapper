@@ -56,9 +56,11 @@ const query = objectType({
 					take: limit,
 					skip: offset,
 					where: {
-						categories: {
-							has: category ?? undefined,
-						},
+						categories: category
+							? {
+									has: category,
+							  }
+							: undefined,
 						OR: [
 							{
 								name: search
