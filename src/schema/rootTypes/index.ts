@@ -90,7 +90,11 @@ const query = objectType({
 						],
 					},
 					include: {
-						versions: true,
+						versions: {
+							orderBy: {
+								date_created: "desc",
+							},
+						},
 					},
 					orderBy: [
 						{
