@@ -48,7 +48,7 @@ const query = objectType({
 			args: {
 				search: nullable(stringArg()),
 				category: nullable(stringArg()),
-				limit: intArg({ default: 0 }),
+				limit: intArg({ default: 20 }),
 				offset: intArg({ default: 0 }),
 			},
 			async resolve(_root, { search, category, limit, offset }) {
