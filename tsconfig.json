@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "inlineSources": true,
+    "sourceRoot": "/",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"],
+    },
+  },
+  "include": ["*.ts", "*.js", "src/**/*", "prisma/seed.ts"],
+  "exclude": ["node_modules"],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"],
+  },
+  "tsc-alias": {
+    "verbose": false,
+    "resolveFullPaths": true,
+  },
+}

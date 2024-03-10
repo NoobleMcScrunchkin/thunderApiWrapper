@@ -1,0 +1,52 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator nexusPrisma {
+   provider = "nexus-prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Package {
+  id               String           @id @default(uuid())
+  name             String
+  full_name        String           @unique()
+  owner            String
+  package_url      String
+  donation_link    String?
+  date_created     String
+  date_updated     String
+  uuidv4           String?
+  rating_score     Int
+  is_pinned        Boolean
+  is_deprecated    Boolean
+  has_nsfw_content Boolean
+  categories       String[]
+  versions         PackageVersion[]
+}
+
+model PackageVersion {
+  id             String   @id @default(uuid())
+  package_id     String
+  package        Package  @relation(fields: [package_id], references: [id])
+  name           String
+  full_name      String   @unique()
+  description    String
+  icon           String
+  version_number String
+  dependencies   String[]
+  download_url   String
+  downloads      Int
+  date_created   String
+  website_url    String
+  is_active      Boolean
+  uuid4          String?
+  file_size      Int
+}
