@@ -1,5 +1,6 @@
 import { objectType, stringArg, nullable, intArg, scalarType } from "nexus";
 import prisma from "@/prisma";
+import { Prisma } from "@prisma/client";
 
 const packageType = objectType({
 	definition(t) {
@@ -64,6 +65,7 @@ const query = objectType({
 					categories: category
 						? {
 								has: category,
+								mode: "insensitive",
 						  }
 						: undefined,
 					OR: [
@@ -71,6 +73,7 @@ const query = objectType({
 							name: search
 								? {
 										contains: search,
+										mode: "insensitive",
 								  }
 								: undefined,
 						},
@@ -78,6 +81,7 @@ const query = objectType({
 							full_name: search
 								? {
 										contains: search,
+										mode: "insensitive",
 								  }
 								: undefined,
 						},
@@ -87,13 +91,14 @@ const query = objectType({
 									description: search
 										? {
 												contains: search,
+												mode: "insensitive",
 										  }
 										: undefined,
 								},
 							},
 						},
 					],
-				};
+				} as Prisma.PackageWhereInput;
 
 				const total = await prisma.package.count({ where });
 
