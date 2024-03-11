@@ -42,9 +42,17 @@ const packageVersionType = objectType({
 	name: "PackageVersion",
 });
 
+const packageQueryType = objectType({
+	definition(t) {
+		t.int("total");
+		t.list.field("result", { type: "Package" });
+	},
+	name: "PackageQuery",
+});
+
 const query = objectType({
 	definition(t) {
-		t.list.field("packages", {
+		t.field("packages", {
 			args: {
 				search: nullable(stringArg()),
 				category: nullable(stringArg()),
@@ -52,43 +60,47 @@ const query = objectType({
 				offset: intArg({ default: 0 }),
 			},
 			async resolve(_root, { search, category, limit, offset }) {
+				const where = {
+					categories: category
+						? {
+								has: category,
+						  }
+						: undefined,
+					OR: [
+						{
+							name: search
+								? {
+										contains: search,
+								  }
+								: undefined,
+						},
+						{
+							full_name: search
+								? {
+										contains: search,
+								  }
+								: undefined,
+						},
+						{
+							versions: {
+								some: {
+									description: search
+										? {
+												contains: search,
+										  }
+										: undefined,
+								},
+							},
+						},
+					],
+				};
+
+				const total = await prisma.package.count({ where });
+
 				const result = await prisma.package.findMany({
 					take: limit,
 					skip: offset,
-					where: {
-						categories: category
-							? {
-									has: category,
-							  }
-							: undefined,
-						OR: [
-							{
-								name: search
-									? {
-											contains: search,
-									  }
-									: undefined,
-							},
-							{
-								full_name: search
-									? {
-											contains: search,
-									  }
-									: undefined,
-							},
-							{
-								versions: {
-									some: {
-										description: search
-											? {
-													contains: search,
-											  }
-											: undefined,
-									},
-								},
-							},
-						],
-					},
+					where,
 					include: {
 						versions: {
 							orderBy: {
@@ -98,14 +110,20 @@ const query = objectType({
 					},
 					orderBy: [
 						{
+							is_deprecated: "asc",
+						},
+						{
+							is_pinned: "desc",
+						},
+						{
 							rating_score: "desc",
 						},
 					],
 				});
 
-				return result;
+				return { result, total };
 			},
-			type: "Package",
+			type: "PackageQuery",
 		});
 		t.list.field("versions", {
 			args: {
@@ -132,4 +150,4 @@ const query = objectType({
 });
 
 export default query;
-export { packageType, packageVersionType };
+export { packageType, packageVersionType, packageQueryType };

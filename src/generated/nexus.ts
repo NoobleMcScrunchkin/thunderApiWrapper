@@ -45,6 +45,10 @@ export interface NexusGenObjects {
     uuidv4?: string | null; // String
     versions: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
   }
+  PackageQuery: { // root type
+    result: NexusGenRootTypes['Package'][]; // [Package!]!
+    total: number; // Int!
+  }
   PackageVersion: { // root type
     date_created: string; // String!
     dependencies: string[]; // [String!]!
@@ -92,6 +96,10 @@ export interface NexusGenFieldTypes {
     uuidv4: string | null; // String
     versions: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
   }
+  PackageQuery: { // field return type
+    result: NexusGenRootTypes['Package'][]; // [Package!]!
+    total: number; // Int!
+  }
   PackageVersion: { // field return type
     date_created: string; // String!
     dependencies: string[]; // [String!]!
@@ -109,7 +117,7 @@ export interface NexusGenFieldTypes {
     website_url: string; // String!
   }
   Query: { // field return type
-    packages: NexusGenRootTypes['Package'][]; // [Package!]!
+    packages: NexusGenRootTypes['PackageQuery']; // PackageQuery!
     versions: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
   }
 }
@@ -132,6 +140,10 @@ export interface NexusGenFieldTypeNames {
     uuidv4: 'String'
     versions: 'PackageVersion'
   }
+  PackageQuery: { // field return type name
+    result: 'Package'
+    total: 'Int'
+  }
   PackageVersion: { // field return type name
     date_created: 'String'
     dependencies: 'String'
@@ -149,7 +161,7 @@ export interface NexusGenFieldTypeNames {
     website_url: 'String'
   }
   Query: { // field return type name
-    packages: 'Package'
+    packages: 'PackageQuery'
     versions: 'PackageVersion'
   }
 }

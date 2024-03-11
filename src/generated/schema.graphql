@@ -20,6 +20,11 @@ type Package {
   versions: [PackageVersion!]!
 }
 
+type PackageQuery {
+  result: [Package!]!
+  total: Int!
+}
+
 type PackageVersion {
   date_created: String!
   dependencies: [String!]!
@@ -38,6 +43,6 @@ type PackageVersion {
 }
 
 type Query {
-  packages(category: String, limit: Int! = 20, offset: Int! = 0, search: String): [Package!]!
+  packages(category: String, limit: Int! = 20, offset: Int! = 0, search: String): PackageQuery!
   versions(package_id: String!): [PackageVersion!]!
 }
