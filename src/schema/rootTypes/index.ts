@@ -1,6 +1,9 @@
 import { objectType, stringArg, nullable, intArg, scalarType } from "nexus";
 import prisma from "@/prisma";
-import { Prisma } from "@prisma/client";
+import { PackageVersion, Prisma } from "@prisma/client";
+import { generateQueueFromMod } from "@/services/db";
+import { StoreInDB } from "@/services/thunderstore";
+import { DefaultArgs } from "@prisma/client/runtime/library";
 
 const packageType = objectType({
 	definition(t) {
@@ -18,6 +21,7 @@ const packageType = objectType({
 		t.boolean("is_deprecated");
 		t.boolean("has_nsfw_content");
 		t.list.string("categories");
+		t.int("downloads");
 		t.list.field("versions", { type: "PackageVersion" });
 	},
 	name: "Package",
@@ -51,6 +55,14 @@ const packageQueryType = objectType({
 	name: "PackageQuery",
 });
 
+const dependencyQueryType = objectType({
+	definition(t) {
+		t.list.field("packages", { type: "PackageVersion" });
+		t.list.string("missing");
+	},
+	name: "DependencyQuery",
+});
+
 const query = objectType({
 	definition(t) {
 		t.field("packages", {
@@ -61,7 +73,10 @@ const query = objectType({
 				offset: intArg({ default: 0 }),
 			},
 			async resolve(_root, { search, category, limit, offset }) {
+				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
+
 				const where = {
+					AND: [{ name: { not: { contains: "BepInExPack" } } }, { name: { not: { contains: "r2modman" } } }],
 					categories: category
 						? {
 								has: category,
@@ -100,9 +115,11 @@ const query = objectType({
 					],
 				} as Prisma.PackageWhereInput;
 
-				const total = await prisma.package.count({ where });
+				const model = (StoreInDB.updating ? prisma.packageDupe : prisma.package) as Prisma.PackageDelegate<DefaultArgs>;
 
-				const result = await prisma.package.findMany({
+				const total = await model.count({ where });
+
+				const result = await model.findMany({
 					take: limit,
 					skip: offset,
 					where,
@@ -126,7 +143,12 @@ const query = objectType({
 					],
 				});
 
-				return { result, total };
+				const downloadsAdded = result.map((pack) => {
+					const downloads = pack.versions.reduce((prev, curr) => prev + curr.downloads, 0);
+					return { ...pack, downloads };
+				});
+
+				return { result: downloadsAdded, total };
 			},
 			type: "PackageQuery",
 		});
@@ -135,7 +157,11 @@ const query = objectType({
 				package_id: stringArg(),
 			},
 			async resolve(_root, { package_id }) {
-				const result = await prisma.packageVersion.findMany({
+				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
+
+				const model = (StoreInDB.updating ? prisma.packageVersionDupe : prisma.packageVersion) as Prisma.PackageVersionDelegate<DefaultArgs>;
+
+				const result = await model.findMany({
 					where: {
 						package_id,
 					},
@@ -150,9 +176,44 @@ const query = objectType({
 			},
 			type: "PackageVersion",
 		});
+		t.nullable.field("version", {
+			args: {
+				full_name: stringArg(),
+			},
+			async resolve(_root, { full_name }) {
+				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
+
+				const model = (StoreInDB.updating ? prisma.packageVersionDupe : prisma.packageVersion) as Prisma.PackageVersionDelegate<DefaultArgs>;
+
+				const result = await model.findFirst({
+					where: {
+						full_name,
+					},
+					orderBy: [
+						{
+							date_created: "desc",
+						},
+					],
+				});
+
+				return result;
+			},
+			type: "PackageVersion",
+		});
+		t.field("dependencyList", {
+			args: {
+				full_name: stringArg(),
+			},
+			async resolve(_root, { full_name }) {
+				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
+
+				return await generateQueueFromMod(full_name);
+			},
+			type: "DependencyQuery",
+		});
 	},
 	name: "Query",
 });
 
 export default query;
-export { packageType, packageVersionType, packageQueryType };
+export { packageType, packageVersionType, packageQueryType, dependencyQueryType };

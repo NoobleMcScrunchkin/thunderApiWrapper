@@ -1,6 +1,12 @@
-import prisma from "@/prisma";
 import { ApiPackage } from "@/types";
 import config from "@/config";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient({});
+
+export class StoreInDB {
+	static updating = false;
+}
 
 async function storeGamePackagesInDB(): Promise<void> {
 	const { lethalCompanyApiUrl } = config.thunderstore;
@@ -8,6 +14,13 @@ async function storeGamePackagesInDB(): Promise<void> {
 	const res = await fetch(`${lethalCompanyApiUrl}/package/`);
 
 	const data = (await res.json()) as Array<ApiPackage>;
+
+	await prisma.$executeRaw`drop table IF EXISTS "PackageDupe"`;
+	await prisma.$executeRaw`drop table IF EXISTS "PackageVersionDupe"`;
+	await prisma.$executeRaw`create table "PackageDupe" as Table public."Package";`;
+	await prisma.$executeRaw`create table "PackageVersionDupe" as Table public."PackageVersion";`;
+
+	StoreInDB.updating = true;
 
 	await prisma.$transaction(
 		async (tx) => {
@@ -44,6 +57,8 @@ async function storeGamePackagesInDB(): Promise<void> {
 	);
 
 	console.log("Done DB Insert");
+
+	StoreInDB.updating = false;
 }
 
 export { storeGamePackagesInDB };

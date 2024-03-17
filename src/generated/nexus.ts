@@ -28,11 +28,16 @@ export interface NexusGenScalars {
 }
 
 export interface NexusGenObjects {
+  DependencyQuery: { // root type
+    missing: string[]; // [String!]!
+    packages: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
+  }
   Package: { // root type
     categories: string[]; // [String!]!
     date_created: string; // String!
     date_updated: string; // String!
     donation_link?: string | null; // String
+    downloads: number; // Int!
     full_name: string; // String!
     has_nsfw_content: boolean; // Boolean!
     id: string; // String!
@@ -79,11 +84,16 @@ export type NexusGenRootTypes = NexusGenObjects
 export type NexusGenAllTypes = NexusGenRootTypes & NexusGenScalars
 
 export interface NexusGenFieldTypes {
+  DependencyQuery: { // field return type
+    missing: string[]; // [String!]!
+    packages: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
+  }
   Package: { // field return type
     categories: string[]; // [String!]!
     date_created: string; // String!
     date_updated: string; // String!
     donation_link: string | null; // String
+    downloads: number; // Int!
     full_name: string; // String!
     has_nsfw_content: boolean; // Boolean!
     id: string; // String!
@@ -117,17 +127,24 @@ export interface NexusGenFieldTypes {
     website_url: string; // String!
   }
   Query: { // field return type
+    dependencyList: NexusGenRootTypes['DependencyQuery']; // DependencyQuery!
     packages: NexusGenRootTypes['PackageQuery']; // PackageQuery!
+    version: NexusGenRootTypes['PackageVersion'] | null; // PackageVersion
     versions: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
   }
 }
 
 export interface NexusGenFieldTypeNames {
+  DependencyQuery: { // field return type name
+    missing: 'String'
+    packages: 'PackageVersion'
+  }
   Package: { // field return type name
     categories: 'String'
     date_created: 'String'
     date_updated: 'String'
     donation_link: 'String'
+    downloads: 'Int'
     full_name: 'String'
     has_nsfw_content: 'Boolean'
     id: 'String'
@@ -161,18 +178,26 @@ export interface NexusGenFieldTypeNames {
     website_url: 'String'
   }
   Query: { // field return type name
+    dependencyList: 'DependencyQuery'
     packages: 'PackageQuery'
+    version: 'PackageVersion'
     versions: 'PackageVersion'
   }
 }
 
 export interface NexusGenArgTypes {
   Query: {
+    dependencyList: { // args
+      full_name: string; // String!
+    }
     packages: { // args
       category?: string | null; // String
       limit: number; // Int!
       offset: number; // Int!
       search?: string | null; // String
+    }
+    version: { // args
+      full_name: string; // String!
     }
     versions: { // args
       package_id: string; // String!
