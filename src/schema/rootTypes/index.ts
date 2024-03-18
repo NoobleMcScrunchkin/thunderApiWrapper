@@ -27,6 +27,26 @@ const packageType = objectType({
 	name: "Package",
 });
 
+const packageNoExtrasType = objectType({
+	definition(t) {
+		t.string("id");
+		t.string("name");
+		t.string("full_name");
+		t.string("owner");
+		t.string("package_url");
+		t.nullable.string("donation_link");
+		t.string("date_created");
+		t.string("date_updated");
+		t.nullable.string("uuidv4");
+		t.int("rating_score");
+		t.boolean("is_pinned");
+		t.boolean("is_deprecated");
+		t.boolean("has_nsfw_content");
+		t.list.string("categories");
+	},
+	name: "PackageNoExtras",
+});
+
 const packageVersionType = objectType({
 	definition(t) {
 		t.string("id");
@@ -43,7 +63,7 @@ const packageVersionType = objectType({
 		t.boolean("is_active");
 		t.nullable.string("uuid4");
 		t.int("file_size");
-		t.nullable.field("package", { type: "Package" });
+		t.nullable.field("package", { type: "PackageNoExtras" });
 	},
 	name: "PackageVersion",
 });
@@ -153,50 +173,6 @@ const query = objectType({
 			},
 			type: "PackageQuery",
 		});
-		t.nullable.field("version", {
-			args: {
-				full_name: stringArg(),
-			},
-			async resolve(_root, { full_name }) {
-				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
-
-				const model = (StoreInDB.updating ? prisma.packageVersionDupe : prisma.packageVersion) as Prisma.PackageVersionDelegate<DefaultArgs>;
-
-				const result = await model.findFirst({
-					where: {
-						full_name,
-					},
-					include: {
-						package: true,
-					},
-					orderBy: [
-						{
-							date_created: "desc",
-						},
-					],
-				});
-
-				if (result === null) return null;
-
-				const modelPack = (StoreInDB.updating ? prisma.package : prisma.package) as Prisma.PackageDelegate<DefaultArgs>;
-
-				const resultPack = await modelPack.findFirst({
-					where: {
-						id: result.package_id,
-					},
-					include: {
-						versions: true,
-					},
-				});
-
-				if (resultPack === null) return null;
-
-				const downloads = resultPack.versions.reduce((prev, curr) => prev + curr.downloads, 0);
-
-				return { ...result, package: { ...result.package, downloads } };
-			},
-			type: "PackageVersion",
-		});
 		t.field("dependencyList", {
 			args: {
 				full_name: stringArg(),
@@ -205,28 +181,7 @@ const query = objectType({
 				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
 				const modelPack = (StoreInDB.updating ? prisma.package : prisma.package) as Prisma.PackageDelegate<DefaultArgs>;
 
-				const deps = await generateQueueFromMod(full_name);
-
-				const downloadsAdded = await Promise.all(
-					deps.packages.map(async (ver) => {
-						const resultPack = await modelPack.findFirst({
-							where: {
-								id: ver.package_id,
-							},
-							include: {
-								versions: true,
-							},
-						});
-
-						if (resultPack === null) return { ...ver, package: null };
-
-						const downloads = resultPack.versions.reduce((prev, curr) => prev + curr.downloads, 0);
-
-						return { ...ver, package: { ...resultPack, downloads } };
-					})
-				);
-
-				return { packages: downloadsAdded, missing: deps.missing };
+				return await generateQueueFromMod(full_name);
 			},
 			type: "DependencyQuery",
 		});
@@ -235,4 +190,4 @@ const query = objectType({
 });
 
 export default query;
-export { packageType, packageVersionType, packageQueryType, dependencyQueryType };
+export { packageType, packageVersionType, packageQueryType, dependencyQueryType, packageNoExtrasType };

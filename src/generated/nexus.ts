@@ -50,6 +50,22 @@ export interface NexusGenObjects {
     uuidv4?: string | null; // String
     versions?: NexusGenRootTypes['PackageVersion'][] | null; // [PackageVersion!]
   }
+  PackageNoExtras: { // root type
+    categories: string[]; // [String!]!
+    date_created: string; // String!
+    date_updated: string; // String!
+    donation_link?: string | null; // String
+    full_name: string; // String!
+    has_nsfw_content: boolean; // Boolean!
+    id: string; // String!
+    is_deprecated: boolean; // Boolean!
+    is_pinned: boolean; // Boolean!
+    name: string; // String!
+    owner: string; // String!
+    package_url: string; // String!
+    rating_score: number; // Int!
+    uuidv4?: string | null; // String
+  }
   PackageQuery: { // root type
     result: NexusGenRootTypes['Package'][]; // [Package!]!
     total: number; // Int!
@@ -66,7 +82,7 @@ export interface NexusGenObjects {
     id: string; // String!
     is_active: boolean; // Boolean!
     name: string; // String!
-    package?: NexusGenRootTypes['Package'] | null; // Package
+    package?: NexusGenRootTypes['PackageNoExtras'] | null; // PackageNoExtras
     uuid4?: string | null; // String
     version_number: string; // String!
     website_url: string; // String!
@@ -107,6 +123,22 @@ export interface NexusGenFieldTypes {
     uuidv4: string | null; // String
     versions: NexusGenRootTypes['PackageVersion'][] | null; // [PackageVersion!]
   }
+  PackageNoExtras: { // field return type
+    categories: string[]; // [String!]!
+    date_created: string; // String!
+    date_updated: string; // String!
+    donation_link: string | null; // String
+    full_name: string; // String!
+    has_nsfw_content: boolean; // Boolean!
+    id: string; // String!
+    is_deprecated: boolean; // Boolean!
+    is_pinned: boolean; // Boolean!
+    name: string; // String!
+    owner: string; // String!
+    package_url: string; // String!
+    rating_score: number; // Int!
+    uuidv4: string | null; // String
+  }
   PackageQuery: { // field return type
     result: NexusGenRootTypes['Package'][]; // [Package!]!
     total: number; // Int!
@@ -123,7 +155,7 @@ export interface NexusGenFieldTypes {
     id: string; // String!
     is_active: boolean; // Boolean!
     name: string; // String!
-    package: NexusGenRootTypes['Package'] | null; // Package
+    package: NexusGenRootTypes['PackageNoExtras'] | null; // PackageNoExtras
     uuid4: string | null; // String
     version_number: string; // String!
     website_url: string; // String!
@@ -131,7 +163,6 @@ export interface NexusGenFieldTypes {
   Query: { // field return type
     dependencyList: NexusGenRootTypes['DependencyQuery']; // DependencyQuery!
     packages: NexusGenRootTypes['PackageQuery']; // PackageQuery!
-    version: NexusGenRootTypes['PackageVersion'] | null; // PackageVersion
   }
 }
 
@@ -158,6 +189,22 @@ export interface NexusGenFieldTypeNames {
     uuidv4: 'String'
     versions: 'PackageVersion'
   }
+  PackageNoExtras: { // field return type name
+    categories: 'String'
+    date_created: 'String'
+    date_updated: 'String'
+    donation_link: 'String'
+    full_name: 'String'
+    has_nsfw_content: 'Boolean'
+    id: 'String'
+    is_deprecated: 'Boolean'
+    is_pinned: 'Boolean'
+    name: 'String'
+    owner: 'String'
+    package_url: 'String'
+    rating_score: 'Int'
+    uuidv4: 'String'
+  }
   PackageQuery: { // field return type name
     result: 'Package'
     total: 'Int'
@@ -174,7 +221,7 @@ export interface NexusGenFieldTypeNames {
     id: 'String'
     is_active: 'Boolean'
     name: 'String'
-    package: 'Package'
+    package: 'PackageNoExtras'
     uuid4: 'String'
     version_number: 'String'
     website_url: 'String'
@@ -182,7 +229,6 @@ export interface NexusGenFieldTypeNames {
   Query: { // field return type name
     dependencyList: 'DependencyQuery'
     packages: 'PackageQuery'
-    version: 'PackageVersion'
   }
 }
 
@@ -196,9 +242,6 @@ export interface NexusGenArgTypes {
       limit: number; // Int!
       offset: number; // Int!
       search?: string | null; // String
-    }
-    version: { // args
-      full_name: string; // String!
     }
   }
 }

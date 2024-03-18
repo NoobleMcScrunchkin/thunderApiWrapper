@@ -1,8 +1,11 @@
 import prisma from "@/prisma";
-import { PackageVersion, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { compareVersions } from "compare-versions";
 import { StoreInDB } from "./thunderstore";
 import { DefaultArgs } from "@prisma/client/runtime/library";
+import { NexusGenFieldTypes } from "@/generated/nexus";
+
+type PackageVersion = NexusGenFieldTypes["PackageVersion"];
 
 async function generateQueueFromMod(full_name: string): Promise<{ packages: Array<PackageVersion>; missing: Array<string> }> {
 	const model = (StoreInDB.updating ? prisma.packageVersionDupe : prisma.packageVersion) as Prisma.PackageVersionDelegate<DefaultArgs>;
@@ -10,6 +13,9 @@ async function generateQueueFromMod(full_name: string): Promise<{ packages: Arra
 	const primary = await model.findFirst({
 		where: {
 			full_name,
+		},
+		include: {
+			package: true,
 		},
 		orderBy: [
 			{

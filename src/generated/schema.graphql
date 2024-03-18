@@ -26,6 +26,23 @@ type Package {
   versions: [PackageVersion!]
 }
 
+type PackageNoExtras {
+  categories: [String!]!
+  date_created: String!
+  date_updated: String!
+  donation_link: String
+  full_name: String!
+  has_nsfw_content: Boolean!
+  id: String!
+  is_deprecated: Boolean!
+  is_pinned: Boolean!
+  name: String!
+  owner: String!
+  package_url: String!
+  rating_score: Int!
+  uuidv4: String
+}
+
 type PackageQuery {
   result: [Package!]!
   total: Int!
@@ -43,7 +60,7 @@ type PackageVersion {
   id: String!
   is_active: Boolean!
   name: String!
-  package: Package
+  package: PackageNoExtras
   uuid4: String
   version_number: String!
   website_url: String!
@@ -52,5 +69,4 @@ type PackageVersion {
 type Query {
   dependencyList(full_name: String!): DependencyQuery!
   packages(category: String, limit: Int! = 20, offset: Int! = 0, search: String): PackageQuery!
-  version(full_name: String!): PackageVersion
 }
