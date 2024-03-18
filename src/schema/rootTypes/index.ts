@@ -1,9 +1,14 @@
-import { objectType, stringArg, nullable, intArg, scalarType } from "nexus";
+import { objectType, stringArg, nullable, intArg, scalarType, arg, list } from "nexus";
 import prisma from "@/prisma";
 import { PackageVersion, Prisma } from "@prisma/client";
 import { generateQueueFromMod } from "@/services/db";
 import { StoreInDB } from "@/services/thunderstore";
 import { DefaultArgs } from "@prisma/client/runtime/library";
+import { compareVersions } from "compare-versions";
+
+function notEmpty<TValue>(value: TValue | null | undefined): value is TValue {
+	return value !== null && value !== undefined;
+}
 
 const packageType = objectType({
 	definition(t) {
@@ -179,11 +184,50 @@ const query = objectType({
 			},
 			async resolve(_root, { full_name }) {
 				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
-				const modelPack = (StoreInDB.updating ? prisma.package : prisma.package) as Prisma.PackageDelegate<DefaultArgs>;
 
 				return await generateQueueFromMod(full_name);
 			},
 			type: "DependencyQuery",
+		});
+		t.list.field("updates", {
+			args: {
+				packages: list(stringArg()),
+			},
+			async resolve(_root, { packages }) {
+				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
+				const model = (StoreInDB.updating ? prisma.packageDupe : prisma.package) as Prisma.PackageDelegate<DefaultArgs>;
+
+				const packageNames = packages.map((full_name) => {
+					const split = full_name.split("-");
+					return { full_name: split.slice(0, -1).join("-"), version: split[split.length - 1] };
+				});
+
+				const currentPackages = await model.findMany({
+					where: {
+						full_name: { in: packageNames.map((p) => p.full_name) },
+					},
+					include: {
+						versions: {
+							orderBy: {
+								date_created: "desc",
+							},
+						},
+					},
+				});
+
+				const filtered = currentPackages
+					.map((pack) => {
+						if (compareVersions(pack.versions[0].version_number, packageNames.find((p) => p.full_name === pack.full_name)?.version ?? "")) {
+							return pack.versions[0];
+						}
+
+						return null;
+					})
+					.filter(notEmpty);
+
+				return filtered;
+			},
+			type: "PackageVersion",
 		});
 	},
 	name: "Query",

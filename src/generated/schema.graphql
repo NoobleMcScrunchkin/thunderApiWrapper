@@ -69,4 +69,5 @@ type PackageVersion {
 type Query {
   dependencyList(full_name: String!): DependencyQuery!
   packages(category: String, limit: Int! = 20, offset: Int! = 0, search: String): PackageQuery!
+  updates(packages: [String!]!): [PackageVersion!]!
 }
