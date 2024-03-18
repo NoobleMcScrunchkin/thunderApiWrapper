@@ -23,7 +23,7 @@ type Package {
   package_url: String!
   rating_score: Int!
   uuidv4: String
-  versions: [PackageVersion!]!
+  versions: [PackageVersion!]
 }
 
 type PackageQuery {
@@ -43,6 +43,7 @@ type PackageVersion {
   id: String!
   is_active: Boolean!
   name: String!
+  package: Package
   uuid4: String
   version_number: String!
   website_url: String!
@@ -52,5 +53,4 @@ type Query {
   dependencyList(full_name: String!): DependencyQuery!
   packages(category: String, limit: Int! = 20, offset: Int! = 0, search: String): PackageQuery!
   version(full_name: String!): PackageVersion
-  versions(package_id: String!): [PackageVersion!]!
 }

@@ -48,7 +48,7 @@ export interface NexusGenObjects {
     package_url: string; // String!
     rating_score: number; // Int!
     uuidv4?: string | null; // String
-    versions: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
+    versions?: NexusGenRootTypes['PackageVersion'][] | null; // [PackageVersion!]
   }
   PackageQuery: { // root type
     result: NexusGenRootTypes['Package'][]; // [Package!]!
@@ -66,6 +66,7 @@ export interface NexusGenObjects {
     id: string; // String!
     is_active: boolean; // Boolean!
     name: string; // String!
+    package?: NexusGenRootTypes['Package'] | null; // Package
     uuid4?: string | null; // String
     version_number: string; // String!
     website_url: string; // String!
@@ -104,7 +105,7 @@ export interface NexusGenFieldTypes {
     package_url: string; // String!
     rating_score: number; // Int!
     uuidv4: string | null; // String
-    versions: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
+    versions: NexusGenRootTypes['PackageVersion'][] | null; // [PackageVersion!]
   }
   PackageQuery: { // field return type
     result: NexusGenRootTypes['Package'][]; // [Package!]!
@@ -122,6 +123,7 @@ export interface NexusGenFieldTypes {
     id: string; // String!
     is_active: boolean; // Boolean!
     name: string; // String!
+    package: NexusGenRootTypes['Package'] | null; // Package
     uuid4: string | null; // String
     version_number: string; // String!
     website_url: string; // String!
@@ -130,7 +132,6 @@ export interface NexusGenFieldTypes {
     dependencyList: NexusGenRootTypes['DependencyQuery']; // DependencyQuery!
     packages: NexusGenRootTypes['PackageQuery']; // PackageQuery!
     version: NexusGenRootTypes['PackageVersion'] | null; // PackageVersion
-    versions: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
   }
 }
 
@@ -173,6 +174,7 @@ export interface NexusGenFieldTypeNames {
     id: 'String'
     is_active: 'Boolean'
     name: 'String'
+    package: 'Package'
     uuid4: 'String'
     version_number: 'String'
     website_url: 'String'
@@ -181,7 +183,6 @@ export interface NexusGenFieldTypeNames {
     dependencyList: 'DependencyQuery'
     packages: 'PackageQuery'
     version: 'PackageVersion'
-    versions: 'PackageVersion'
   }
 }
 
@@ -198,9 +199,6 @@ export interface NexusGenArgTypes {
     }
     version: { // args
       full_name: string; // String!
-    }
-    versions: { // args
-      package_id: string; // String!
     }
   }
 }
