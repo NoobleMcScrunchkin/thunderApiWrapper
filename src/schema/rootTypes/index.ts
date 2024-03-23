@@ -178,6 +178,29 @@ const query = objectType({
 			},
 			type: "PackageQuery",
 		});
+		t.list.field("versions", {
+			args: {
+				full_names: list(stringArg()),
+			},
+			async resolve(_root, { full_names }) {
+				const model = (StoreInDB.updating ? prisma.packageVersionDupe : prisma.packageVersion) as Prisma.PackageVersionDelegate<DefaultArgs>;
+
+				return await model.findMany({
+					where: {
+						full_name: { in: full_names },
+					},
+					include: {
+						package: true,
+					},
+					orderBy: [
+						{
+							date_created: "desc",
+						},
+					],
+				});
+			},
+			type: "PackageVersion",
+		});
 		t.field("dependencyList", {
 			args: {
 				full_name: stringArg(),
