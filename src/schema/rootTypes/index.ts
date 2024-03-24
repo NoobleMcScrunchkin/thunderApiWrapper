@@ -91,6 +91,33 @@ const dependencyQueryType = objectType({
 
 const query = objectType({
 	definition(t) {
+		t.nullable.field("bepinex", {
+			async resolve(_root) {
+				console.log(StoreInDB.updating ? "USING DUPE" : "NOT USING DUPE");
+
+				const model = (StoreInDB.updating ? prisma.packageDupe : prisma.package) as Prisma.PackageDelegate<DefaultArgs>;
+
+				const result = await model.findFirst({
+					where: {
+						full_name: "BepInEx-BepInExPack",
+					},
+					include: {
+						versions: {
+							orderBy: {
+								date_created: "desc",
+							},
+						},
+					},
+				});
+
+				if (result === null) return null;
+
+				const downloads = result.versions.reduce((prev, curr) => prev + curr.downloads, 0);
+
+				return { ...result, downloads };
+			},
+			type: "Package",
+		});
 		t.field("packages", {
 			args: {
 				search: nullable(stringArg()),

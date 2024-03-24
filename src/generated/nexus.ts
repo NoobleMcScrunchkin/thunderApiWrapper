@@ -161,6 +161,7 @@ export interface NexusGenFieldTypes {
     website_url: string; // String!
   }
   Query: { // field return type
+    bepinex: NexusGenRootTypes['Package'] | null; // Package
     dependencyList: NexusGenRootTypes['DependencyQuery']; // DependencyQuery!
     packages: NexusGenRootTypes['PackageQuery']; // PackageQuery!
     updates: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
@@ -229,6 +230,7 @@ export interface NexusGenFieldTypeNames {
     website_url: 'String'
   }
   Query: { // field return type name
+    bepinex: 'Package'
     dependencyList: 'DependencyQuery'
     packages: 'PackageQuery'
     updates: 'PackageVersion'
