@@ -178,14 +178,14 @@ const query = objectType({
 			},
 			type: "PackageQuery",
 		});
-		t.list.field("versions", {
+		t.field("versions", {
 			args: {
 				full_names: list(stringArg()),
 			},
 			async resolve(_root, { full_names }) {
 				const model = (StoreInDB.updating ? prisma.packageVersionDupe : prisma.packageVersion) as Prisma.PackageVersionDelegate<DefaultArgs>;
 
-				return await model.findMany({
+				const packages = await model.findMany({
 					where: {
 						full_name: { in: full_names },
 					},
@@ -198,8 +198,12 @@ const query = objectType({
 						},
 					],
 				});
+
+				const missing = full_names.filter((full_name) => !packages.some((pack) => pack.full_name === full_name));
+
+				return { packages, missing };
 			},
-			type: "PackageVersion",
+			type: "DependencyQuery",
 		});
 		t.field("dependencyList", {
 			args: {

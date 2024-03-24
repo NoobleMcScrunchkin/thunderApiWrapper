@@ -164,7 +164,7 @@ export interface NexusGenFieldTypes {
     dependencyList: NexusGenRootTypes['DependencyQuery']; // DependencyQuery!
     packages: NexusGenRootTypes['PackageQuery']; // PackageQuery!
     updates: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
-    versions: NexusGenRootTypes['PackageVersion'][]; // [PackageVersion!]!
+    versions: NexusGenRootTypes['DependencyQuery']; // DependencyQuery!
   }
 }
 
@@ -232,7 +232,7 @@ export interface NexusGenFieldTypeNames {
     dependencyList: 'DependencyQuery'
     packages: 'PackageQuery'
     updates: 'PackageVersion'
-    versions: 'PackageVersion'
+    versions: 'DependencyQuery'
   }
 }
 
